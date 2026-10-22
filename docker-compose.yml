@@ -1,0 +1,21 @@
+# Local PostgreSQL for development. Start: docker compose up -d   Stop: docker compose down
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: bryggen-desk-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bryggen_desk
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bryggen_desk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
