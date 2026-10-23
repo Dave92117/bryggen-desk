@@ -11,7 +11,7 @@ export async function GET() {
     await db.execute(sql`select 1`);
     return Response.json({ status: "ok", database: "up" });
   }  catch (error) {
-    // Log the real reason on the server; the visitor only sees "down".
+    // Logging the error to the console for debugging purposes
     console.error("Health check failed:", error);
     return Response.json({ status: "error", database: "down" }, { status: 503 });
   }
