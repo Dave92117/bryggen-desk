@@ -10,7 +10,9 @@ export async function GET() {
   try {
     await db.execute(sql`select 1`);
     return Response.json({ status: "ok", database: "up" });
-  } catch {
+  }  catch (error) {
+    // Log the real reason on the server; the visitor only sees "down".
+    console.error("Health check failed:", error);
     return Response.json({ status: "error", database: "down" }, { status: 503 });
   }
 }
