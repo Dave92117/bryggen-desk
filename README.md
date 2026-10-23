@@ -3,6 +3,7 @@
 A small helpdesk for Bergen businesses with 10–50 employees. Employees report IT problems, agents work them through an ITIL-style flow, and an AI assistant suggests how to sort each ticket while a human makes the call.
 
 **Status:** under construction, built in public in October–November 2026. Daily progress is in [DEVLOG.md](DEVLOG.md).
+**Live:** https://bryggen-desk.vercel.app (health check: [/api/health](https://bryggen-desk.vercel.app/api/health))
 
 ## Why
 
