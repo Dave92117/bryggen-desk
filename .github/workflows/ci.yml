@@ -29,6 +29,9 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/bryggen_desk
+      # Throwaway values for CI only. The real secret lives in Vercel's settings.
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0000
+      BETTER_AUTH_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v6
@@ -44,6 +47,9 @@ jobs:
       - name: Apply database migrations
         run: npm run db:migrate
 
+      - name: Seed demo data
+        run: npm run db:seed
+
       - name: Lint
         run: npm run lint
 
@@ -53,16 +59,24 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Smoke test /api/health
+      - name: Smoke test /api/health and demo login
         run: |
           npm start &
           for i in $(seq 1 30); do
             if curl -sf http://localhost:3000/api/health; then
               echo ""
               echo "Health check passed"
-              exit 0
+              break
+            fi
+            if [ "$i" = "30" ]; then
+              echo "Health check failed after 30 seconds"
+              exit 1
             fi
             sleep 1
           done
-          echo "Health check failed after 30 seconds"
-          exit 1
+          curl -sf -o /dev/null \
+            -H "Origin: http://localhost:3000" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"agent@example.com","password":"Bryggen2026!"}' \
+            http://localhost:3000/api/auth/sign-in/email
+          echo "Demo login passed"
