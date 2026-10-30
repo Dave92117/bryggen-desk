@@ -33,9 +33,12 @@ export const tickets = pgTable("tickets", {
   priority: priorityEnum("priority").notNull(),
   status: ticketStatusEnum("status").notNull().default("new"),
   supportLine: supportLineEnum("support_line").notNull().default("first"),
-  // User ids come from Better Auth on Day 3. The links to the user table are added then.
-  requesterId: text("requester_id").notNull(),
-  assigneeId: text("assignee_id"),
+  // Every ticket points at a real user. The database refuses to delete a user who has
+  // reported tickets; if an agent is deleted, their tickets simply become unassigned.
+  requesterId: text("requester_id")
+    .notNull()
+    .references(() => user.id),
+  assigneeId: text("assignee_id").references(() => user.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
@@ -46,6 +49,11 @@ export const tickets = pgTable("tickets", {
 // TypeScript types that follow the table automatically.
 export type Ticket = typeof tickets.$inferSelect;
 export type NewTicket = typeof tickets.$inferInsert;
+export type TicketType = (typeof ticketTypeEnum.enumValues)[number];
+export type TicketCategory = (typeof ticketCategoryEnum.enumValues)[number];
+export type Level = (typeof levelEnum.enumValues)[number];
+export type Priority = (typeof priorityEnum.enumValues)[number];
+export type TicketStatus = (typeof ticketStatusEnum.enumValues)[number];
 
 // ---------------------------------------------------------------------------
 // Login tables used by Better Auth. Column names follow Better Auth's own
